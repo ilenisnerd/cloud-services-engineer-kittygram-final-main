@@ -31,9 +31,8 @@ jobs:
         run: terraform init
         env:
           YC_TOKEN: ${{ secrets.YC_TOKEN }}
-          ACCESS_KEY: ${{ secrets.ACCESS_KEY }}
-          SECRET_KEY: ${{ secrets.SECRET_KEY_TF }}
-
+          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_KEY_TF }}
       - name: Terraform Plan
         working-directory: ./infra
         if: ${{ github.event.inputs.action == 'plan' }}
