@@ -1,0 +1,62 @@
+name: Terraform
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Select the Terraform action'
+        required: true
+        default: 'plan'
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Terraform Init
+        working-directory: ./infra
+        run: terraform init
+        env:
+          YC_TOKEN: ${{ secrets.YC_TOKEN }}
+          ACCESS_KEY: ${{ secrets.ACCESS_KEY }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY_TF }}
+
+      - name: Terraform Plan
+        working-directory: ./infra
+        if: ${{ github.event.inputs.action == 'plan' }}
+        run: terraform plan -var="yc_token=${{ secrets.YC_TOKEN }}" -var="cloud_id=${{ secrets.CLOUD_ID }}" -var="folder_id=${{ secrets.FOLDER_ID }}"
+        env:
+          YC_TOKEN: ${{ secrets.YC_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_KEY_TF }}
+
+      - name: Terraform Apply
+        working-directory: ./infra
+        if: ${{ github.event.inputs.action == 'apply' }}
+        run: terraform apply -auto-approve -var="yc_token=${{ secrets.YC_TOKEN }}" -var="cloud_id=${{ secrets.CLOUD_ID }}" -var="folder_id=${{ secrets.FOLDER_ID }}"
+        env:
+          YC_TOKEN: ${{ secrets.YC_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_KEY_TF }}
+
+      - name: Terraform Destroy
+        working-directory: ./infra
+        if: ${{ github.event.inputs.action == 'destroy' }}
+        run: terraform destroy -auto-approve -var="yc_token=${{ secrets.YC_TOKEN }}" -var="cloud_id=${{ secrets.CLOUD_ID }}" -var="folder_id=${{ secrets.FOLDER_ID }}"
+        env:
+          YC_TOKEN: ${{ secrets.YC_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_KEY_TF }}
