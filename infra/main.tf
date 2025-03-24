@@ -122,7 +122,7 @@ packages:
 runcmd:
   - systemctl enable docker
   - systemctl start docker
-  - usermod -aG docker Ubuntu
+  - usermod -aG docker ubuntu
 EOT
   }
 } 
